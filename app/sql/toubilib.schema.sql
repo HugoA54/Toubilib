@@ -62,7 +62,7 @@ CREATE TABLE "rdv" (
     "praticien_id" uuid         NOT NULL REFERENCES "praticien" ("id") ON DELETE CASCADE,
     -- RDV * -> 1 Structure
     "structure_id" uuid         NOT NULL REFERENCES "structure" ("id"),
-    "date_heure"   timestamp    NOT NULL,
+    "DateTime_heure"   timestamp    NOT NULL,
     "duree"        smallint     NOT NULL DEFAULT 30,
     "motif"        varchar(128),
     "statut"       smallint     NOT NULL DEFAULT 0,
@@ -70,7 +70,7 @@ CREATE TABLE "rdv" (
     CONSTRAINT "rdv_statut_check" CHECK ("statut" BETWEEN 0 AND 3)
 );
 
-CREATE INDEX "rdv_praticien_date_idx" ON "rdv" ("praticien_id", "date_heure");
+CREATE INDEX "rdv_praticien_DateTime_idx" ON "rdv" ("praticien_id", "DateTime_heure");
 CREATE INDEX "rdv_patient_idx"        ON "rdv" ("patient_id");
 
 

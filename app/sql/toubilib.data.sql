@@ -56,7 +56,7 @@ INSERT INTO "patient" ("id", "nom", "prenom", "email", "telephone") VALUES
 
 
 -- statut : 0 = prévu, 1 = honoré, 2 = non honoré (ignoré), 3 = annulé
-INSERT INTO "rdv" ("id", "patient_id", "praticien_id", "structure_id", "date_heure", "duree", "motif", "statut") VALUES
+INSERT INTO "rdv" ("id", "patient_id", "praticien_id", "structure_id", "DateTime_heure", "duree", "motif", "statut") VALUES
 -- RDV passés
 ('d0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000001', '2026-09-07 09:00', 30, 'Consultation de suivi',          1),
 ('d0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000001', '2026-09-07 09:30', 30, 'Renouvellement d''ordonnance',   1),

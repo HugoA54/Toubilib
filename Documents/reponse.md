@@ -2,7 +2,7 @@
 
 ## 1. Comment peut-on l’implanter dans le domaine ?
 
-La règle métier est placée dans l'entité Rdv, car c'est elle qui connaît son statut et sa date. La méthode estAnnulable() vérifie que le RDV est encore prévu (statut 0) et qu'il n'est pas déjà passé. La méthode annuler() passe le statut à « annulé » ; si le RDV n'est pas annulable, elle lève une RdvNonAnnulableException. Les méthodes annulerRDV() de Patient et de Praticien se contentent d'appeler rdv->annuler().
+La règle métier est placée dans l'entité Rdv, car c'est elle qui connaît son statut et sa DateTime. La méthode estAnnulable() vérifie que le RDV est encore prévu (statut 0) et qu'il n'est pas déjà passé. La méthode annuler() passe le statut à « annulé » ; si le RDV n'est pas annulable, elle lève une RdvNonAnnulableException. Les méthodes annulerRDV() de Patient et de Praticien se contentent d'appeler rdv->annuler().
 
 ## 2. Quelles erreurs peuvent être détectées lors de l’exécution de cette fonctionnalité ?
 
@@ -19,7 +19,7 @@ C'est le repository des RDV, défini par le port de sortie RdvRepositoryInterfac
 
 ## 4. Quel composant sauvegarde ce RDV dans la base de données après sa modification ?
 
-C'est ce même repository, avec sa méthode update(). Le service applicatif enchaîne les trois étapes : findById(), puis rdv->annuler(), puis update().
+C'est ce même repository, avec sa méthode upDateTime(). Le service applicatif enchaîne les trois étapes : findById(), puis rdv->annuler(), puis upDateTime().
 
 ## 5. Ports d'entrée et sortie
 
@@ -37,5 +37,5 @@ php
 interface RdvRepositoryInterface
 {
     public function findById(string $id): Rdv;
-    public function update(Rdv $rdv): void;
+    public function upDateTime(Rdv $rdv): void;
 }

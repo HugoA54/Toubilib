@@ -1,8 +1,8 @@
 # Use an official PHP runtime as a base image
 FROM php:8.5-cli
 
-# basic update
-RUN apt-get update && \
+# basic upDateTime
+RUN apt-get upDateTime && \
     apt-get install --yes --force-yes \
     cron openssl
 
