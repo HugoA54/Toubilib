@@ -29,6 +29,8 @@ class ServiceRendezVous implements ServiceRendezVousInterface
             throw new AnnulationRendezVousException($e->getMessage(), previous: $e);
         }
 
+        $this->rendezVousRepository->save($rendezVous);
+
         return RendezVousDTO::fromEntity($rendezVous);
     }
 }
