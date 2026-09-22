@@ -9,9 +9,6 @@ use toubilib\application\exceptions\RendezVousIntrouvableException;
 
 interface ServiceRendezVousInterface
 {
-    /**
-     * @throws RendezVousIntrouvableException si aucun rendez-vous ne correspond à l'identifiant
-     * @throws AnnulationRendezVousException si le rendez-vous ne peut pas être annulé
-     */
+  
     public function annuler(string $idRendezVous): RendezVousDTO;
 }

@@ -23,15 +23,11 @@ class ServiceRendezVous implements ServiceRendezVousInterface
         if ($rendezVous === null) {
             throw new RendezVousIntrouvableException("Le rendez-vous $idRendezVous est introuvable.");
         }
-
-        // la règle métier (annulable ou non) est portée par l'entité
         try {
             $rendezVous->annuler();
         } catch (RendezVousException $e) {
             throw new AnnulationRendezVousException($e->getMessage(), previous: $e);
         }
-
-        $this->rendezVousRepository->save($rendezVous);
 
         return RendezVousDTO::fromEntity($rendezVous);
     }
