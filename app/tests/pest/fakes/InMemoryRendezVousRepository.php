@@ -1,22 +1,18 @@
 <?php
-
 namespace tests\pest\fakes;
 
-use toubilib\application\ports\spi\RendezVousRepositoryInterface;
 use toubilib\domain\entities\RendezVous;
+use toubilib\application\ports\spi\RendezVousRepositoryInterface;
 
 class InMemoryRendezVousRepository implements RendezVousRepositoryInterface {
 
-    private array $rendezVous = [];
-
-    public int $nbSave = 0;
-
-    public function findById(string $id): ?RendezVous {
-        return $this->rendezVous[$id] ?? null;
-    }
+    private array $store = [];
 
     public function save(RendezVous $rendezVous): void {
-        $this->rendezVous[$rendezVous->getId()] = $rendezVous;
-        $this->nbSave++;
+        $this->store[$rendezVous->getId()] = $rendezVous;
+    }
+
+    public function findById(string $id): ?RendezVous {
+        return $this->store[$id] ?? null;
     }
 }
