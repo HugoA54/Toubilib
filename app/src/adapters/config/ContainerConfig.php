@@ -1,0 +1,37 @@
+<?php
+declare(strict_types=1);
+
+namespace toubilib\adapters\config;
+
+use DI\ContainerBuilder;
+use Psr\Container\ContainerInterface;
+
+use toubilib\application\usecases\ServiceRendezVous;
+use toubilib\application\ports\api\ServiceRendezVousInterface;
+use toubilib\application\ports\spi\RendezVousRepositoryInterface;
+use toubilib\adapters\persistance\RendezVousRepository;
+
+final class ContainerConfig {
+
+    public static function build(): \DI\Container {
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
+
+            // ── domain service ─
+            ServiceRendezVousInterface::class => \DI\create(ServiceRendezVous::class)
+                ->constructor(\DI\get(RendezVousRepositoryInterface::class)),
+
+            // ── adapters ─
+            'toubilib.pdo' => function (ContainerInterface $c) {
+                $dsn = "{$_ENV['lib.driver']}:host={$_ENV['lib.host']};dbname={$_ENV['lib.database']}";
+                $user = $_ENV['lib.username'];
+                $password = $_ENV['lib.password'];
+                return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+            },
+
+            RendezVousRepositoryInterface::class => \DI\create(RendezVousRepository::class)
+                ->constructor(\DI\get('toubilib.pdo')),
+        ]);
+        return $builder->build();
+    }
+}
