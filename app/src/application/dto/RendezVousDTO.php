@@ -36,4 +36,20 @@ final readonly class RendezVousDTO
             statutLibelle: $rendezVous->getStatut()->libelle(),
         );
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'patient_id' => $this->patientId,
+            'praticien_id' => $this->praticienId,
+            'structure_id' => $this->structureId,
+            'date_heure' => $this->dateHeure,
+            'date_heure_fin' => $this->dateHeureFin,
+            'duree' => $this->duree,
+            'motif' => $this->motif,
+            'statut' => $this->statut,
+            'statut_libelle' => $this->statutLibelle,
+        ];
+    }
 }
