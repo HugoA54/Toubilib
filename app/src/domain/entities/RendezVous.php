@@ -121,6 +121,11 @@ class RendezVous
         return $this->statut;
     }
 
+    public function getDuree(): int
+    {
+        return $this->duree;
+    }
+
     public function getDetails(): array
     {
         return [

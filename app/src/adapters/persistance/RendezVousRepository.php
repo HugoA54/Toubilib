@@ -27,7 +27,22 @@ class RendezVousRepository implements RendezVousRepositoryInterface {
     }
 
     public function save(RendezVous $rendezVous): void {
-        // TODO
+        try {
+            $stmt = $this->pdo->prepare('INSERT INTO rdv (id, patient_id, praticien_id, structure_id, date_heure, duree, motif, statut) 
+                                              VALUES (:id, :patient, :praticien, :structure, :date_heure, :duree, :motif, :statut)');
+            $stmt->execute([
+                'id' => $rendezVous->getId(),
+                'patient' => $rendezVous->getPatientId(),
+                'praticien' => $rendezVous->getPraticienId(),
+                'structure' => $rendezVous->getStructureId(),
+                'date_heure' => $rendezVous->getDateTimeHeure(),
+                'duree' => $rendezVous->getDuree(),
+                'motif' => $rendezVous->getMotif(),
+                'statut' => $rendezVous->getStatut()
+            ]);
+        } catch (\PDOException $e) {
+            
+        }
     }
 }
 ?>
