@@ -41,7 +41,7 @@ class RendezVousRepository implements RendezVousRepositoryInterface {
                 'statut' => $rendezVous->getStatut()
             ]);
         } catch (\PDOException $e) {
-
+            
         }
     }
 }
