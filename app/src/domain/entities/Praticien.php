@@ -6,7 +6,7 @@ use DateTime;
 
 class Praticien 
 {
-    private function __construct(
+    public function __construct(
         private string $id,
         private string $titre,
         private string $nom,
