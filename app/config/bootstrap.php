@@ -7,6 +7,7 @@ use toubilib\adapters\config\ContainerConfig;
 use toubilib\adapters\controllers\actions\AfficherPraticiensAction;
 use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
 use toubilib\adapters\controllers\actions\GetDetailsRendezVousAction;
+use toubilib\adapters\controllers\actions\GetDetailsPraticiensAction;
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '.env');
 $dotenv->load();
@@ -34,6 +35,8 @@ $app->group('/rendezvous', function (\Slim\Routing\RouteCollectorProxy $group) {
 $app->group('/praticiens', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('', AfficherPraticiensAction::class)
         ->setName('tous-les-praticiens');
+    $group->get('/{id}', GetDetailsPraticiensAction::class)
+        ->setName('praticien-details');
 });
 
 

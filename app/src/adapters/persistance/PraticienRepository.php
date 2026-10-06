@@ -53,7 +53,7 @@ class PraticienRepository implements PraticienRepositoryInterface{
                 $row['telephone'],
                 new \DateTime($row['horaire_debut']),
                 new \DateTime($row['horaire_fin']),
-                (string) $row['specialite_id'],
+                $row['specialite_id'],
                 $row['structure_id'],
             );
         }
