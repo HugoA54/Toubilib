@@ -5,6 +5,7 @@ use Slim\Factory\AppFactory;
 
 use toubilib\adapters\config\ContainerConfig;
 use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
+use toubilib\adapters\controllers\actions\GetDetailsRendezVousAction;
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '.env');
 $dotenv->load();
@@ -24,8 +25,9 @@ $errorHandler->registerErrorRenderer('application/json', function ($exception, $
 $app->group('/rendezvous', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/{id}/annuler', AnnulerRendezVousAction::class)
         ->setName('rendezvous-annuler');
-    $group->get('/{id}', GetDetailsRendezVousAction::class) ->setName("rendezvous-details");
-    });
+    $group->get('/{id}', GetDetailsRendezVousAction::class)
+        ->setName('rendezvous-details');
+});
 
 
 return $app;
