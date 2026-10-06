@@ -8,5 +8,7 @@ use toubilib\domain\entities\Praticien;
 interface PraticienRepositoryInterface 
 {
     public function findByAll() : array;
+
+    public function findById(string $id) : ?Praticien; 
     
 }
