@@ -10,11 +10,13 @@ use toubilib\application\usecases\ServiceRendezVous;
 use toubilib\application\ports\api\ServiceRendezVousInterface;
 use toubilib\application\ports\spi\RendezVousRepositoryInterface;
 use toubilib\adapters\persistance\RendezVousRepository;
+use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
 
 final class ContainerConfig {
 
     public static function build(): \DI\Container {
         $builder = new ContainerBuilder();
+        $builder->useAutowiring(false);
         $builder->addDefinitions([
 
             // ── domain service ─
@@ -31,6 +33,10 @@ final class ContainerConfig {
 
             RendezVousRepositoryInterface::class => \DI\create(RendezVousRepository::class)
                 ->constructor(\DI\get('toubilib.pdo')),
+
+            // ── actions ─
+            AnnulerRendezVousAction::class => \DI\create(AnnulerRendezVousAction::class)
+                ->constructor(\DI\get(ServiceRendezVousInterface::class)),
         ]);
         return $builder->build();
     }
