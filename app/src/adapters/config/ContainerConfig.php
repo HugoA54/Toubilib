@@ -5,9 +5,6 @@ namespace toubilib\adapters\config;
 
 use DI\ContainerBuilder;
 
-use toubilib\application\ports\api\ServiceRendezVousInterface;
-use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
-
 final class ContainerConfig {
 
     public static function build(): \DI\Container {
@@ -15,12 +12,7 @@ final class ContainerConfig {
         $builder->useAutowiring(false);
         $builder->addDefinitions(__DIR__ . '/../../../config/settings.php');
         $builder->addDefinitions(__DIR__ . '/../../../config/services.php');
-        $builder->addDefinitions([
-
-            // ── actions ─
-            AnnulerRendezVousAction::class => \DI\create(AnnulerRendezVousAction::class)
-                ->constructor(\DI\get(ServiceRendezVousInterface::class)),
-        ]);
+        $builder->addDefinitions(__DIR__ . '/../../../config/api.php');
         return $builder->build();
     }
 }
