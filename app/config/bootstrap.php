@@ -4,6 +4,7 @@ declare(strict_types=1);
 use Slim\Factory\AppFactory;
 
 use toubilib\adapters\config\ContainerConfig;
+use toubilib\adapters\controllers\actions\AfficherPraticiensAction;
 use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
 use toubilib\adapters\controllers\actions\GetDetailsRendezVousAction;
 
@@ -27,6 +28,12 @@ $app->group('/rendezvous', function (\Slim\Routing\RouteCollectorProxy $group) {
         ->setName('rendezvous-annuler');
     $group->get('/{id}', GetDetailsRendezVousAction::class)
         ->setName('rendezvous-details');
+    
+});
+
+$app->group('/praticiens', function (\Slim\Routing\RouteCollectorProxy $group) {
+    $group->get('', AfficherPraticiensAction::class)
+        ->setName('tous-les-praticiens');
 });
 
 

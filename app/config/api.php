@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 use OpenApi\Attributes\Get;
+use toubilib\adapters\controllers\actions\AfficherPraticiensAction;
 use toubilib\application\ports\api\ServiceRendezVousInterface;
+use toubilib\application\ports\api\ServicePraticienInterface;
 use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
 use toubilib\adapters\controllers\actions\GetDetailsRendezVousAction;
 
@@ -13,6 +15,11 @@ return [
         ->constructor(\DI\get(ServiceRendezVousInterface::class)),
 
     GetDetailsRendezVousAction::class => \DI\create(GetDetailsRendezVousAction::class)
-        ->constructor(\DI\get(ServiceRendezVousInterface::class))
+        ->constructor(\DI\get(ServiceRendezVousInterface::class)),
+    
+    AfficherPraticiensAction::class => \DI\create(AfficherPraticiensAction::class)
+        ->constructor(\DI\get(ServicePraticienInterface::class)),
+
+
 
 ];
