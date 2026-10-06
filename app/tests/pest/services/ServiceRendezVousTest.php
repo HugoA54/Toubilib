@@ -90,3 +90,37 @@ it("devrait refuser d'annuler un rendez-vous honoré", function() {
     expect(fn () => $service->annuler(RDV_UUID))
         ->toThrow(AnnulationRendezVousException::class, "Impossible d'annuler un rendez-vous honoré.");
 });
+
+it("devrait retourner les détails d'un rendez-vous", function() {
+    $service = new ServiceRendezVous(makeRepository([makeRendezVousPourService('2030-01-15 10:00')]));
+
+    $dto = $service->details(RDV_UUID);
+
+    expect($dto->toArray())->toMatchArray([
+        'id' => RDV_UUID,
+        'patient_id' => 'b0000000-0000-4000-8000-000000000001',
+        'praticien_id' => 'a0000000-0000-4000-8000-000000000001',
+        'structure_id' => 'c0000000-0000-4000-8000-000000000001',
+        'date_heure' => '2030-01-15 10:00',
+        'date_heure_fin' => '2030-01-15 10:30',
+        'duree' => 30,
+        'motif' => 'Consultation de suivi',
+        'statut' => StatutRendezVous::PREVU->value,
+    ]);
+});
+
+it("devrait lever RendezVousIntrouvableException pour les détails d'un rendez-vous inexistant", function() {
+    $service = new ServiceRendezVous(makeRepository());
+
+    expect(fn () => $service->details(RDV_INCONNU_UUID))
+        ->toThrow(RendezVousIntrouvableException::class, "Le rendez-vous " . RDV_INCONNU_UUID . " est introuvable.");
+});
+
+it("ne devrait pas modifier le rendez-vous en consultant ses détails", function() {
+    $repository = makeRepository([makeRendezVousPourService('+1 day')]);
+    $service = new ServiceRendezVous($repository);
+
+    $service->details(RDV_UUID);
+
+    expect($repository->findById(RDV_UUID)->getStatut())->toBe(StatutRendezVous::PREVU);
+});

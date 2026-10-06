@@ -95,3 +95,8 @@ it("devrait refuser le retour en arrière d'un rendez-vous de HONORE à NON_HONO
     expect(fn () => $rdv->marquerIgnore())
         ->toThrow(RendezVousException::class, "Impossible de marquer non honoré un rendez-vous honoré.");
 });
+
+it("devrait calculer l'heure de fin à partir de la durée", function() {
+    $rdv = new RendezVous('id', 'patient', 'praticien', 'structure', new DateTime('2030-01-15 10:00'), 45);
+    expect($rdv->getDateTimeHeureFin()->format('Y-m-d H:i'))->toBe('2030-01-15 10:45');
+});
