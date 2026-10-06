@@ -11,13 +11,13 @@ class Praticien
         private string $titre,
         private string $nom,
         private string $prenom,
-        private string $adresse,
+        private ?string $adresse,
         private string $ville,
         private string $email,
         private string $tel,
         private DateTime $debut,
         private DateTime $fin,
-        private string $specialiteId,
+        private int $specialiteId,
         private string $structureId
     ) {
 
@@ -43,7 +43,7 @@ public function getPrenom(): string
     return $this->prenom;
 }
 
-public function getAdresse(): string
+public function getAdresse(): ?string
 {
     return $this->adresse;
 }
@@ -73,7 +73,7 @@ public function getFin(): DateTime
     return $this->fin;
 }
 
-public function getSpecialiteId(): string
+public function getSpecialiteId(): int
 {
     return $this->specialiteId;
 }
