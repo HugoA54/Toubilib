@@ -7,6 +7,7 @@ use toubilib\adapters\config\ContainerConfig;
 use toubilib\adapters\controllers\actions\AfficherPraticiensAction;
 use toubilib\adapters\controllers\actions\AnnulerRendezVousAction;
 use toubilib\adapters\controllers\actions\GetDetailsRendezVousAction;
+use toubilib\adapters\controllers\actions\CreerRendezVousAction;
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '.env');
 $dotenv->load();
@@ -24,6 +25,8 @@ $errorHandler->registerErrorRenderer('application/json', function ($exception, $
 });
 
 $app->group('/rendezvous', function (\Slim\Routing\RouteCollectorProxy $group) {
+    $group->post('', CreerRendezVousAction::class)
+        ->setName('rendezvous-creer');
     $group->post('/{id}/annuler', AnnulerRendezVousAction::class)
         ->setName('rendezvous-annuler');
     $group->get('/{id}', GetDetailsRendezVousAction::class)
