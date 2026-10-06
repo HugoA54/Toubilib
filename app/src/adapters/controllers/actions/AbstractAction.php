@@ -19,4 +19,6 @@ abstract class AbstractAction {
     protected function empty(ResponseInterface $rs, int $status = 204): ResponseInterface {
         return JsonRenderer::render($rs, $status, null);
     }
+
+    
 }
