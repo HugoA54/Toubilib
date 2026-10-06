@@ -17,6 +17,15 @@ class ServiceRendezVous implements ServiceRendezVousInterface
     ) {
     }
 
+    public function details(string $idRendezVous): RendezVousDTO
+    {
+        $rendezVous = $this->rendezVousRepository->findById($idRendezVous);
+        if ($rendezVous === null) {
+            throw new RendezVousIntrouvableException("Le rendez-vous $idRendezVous est introuvable.");
+        }
+        return RendezVousDTO::fromEntity($rendezVous);
+    }
+
     public function annuler(string $idRendezVous): RendezVousDTO
     {
         $rendezVous = $this->rendezVousRepository->findById($idRendezVous);
