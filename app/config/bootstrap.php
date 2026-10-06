@@ -24,6 +24,8 @@ $errorHandler->registerErrorRenderer('application/json', function ($exception, $
 $app->group('/rendezvous', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/{id}/annuler', AnnulerRendezVousAction::class)
         ->setName('rendezvous-annuler');
-});
+    $group->get('/{id}', GetDetailsRendezVousAction::class) ->setName("rendezvous-details");
+    });
+
 
 return $app;
