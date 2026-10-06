@@ -17,6 +17,7 @@ final class ContainerConfig {
     public static function build(): \DI\Container {
         $builder = new ContainerBuilder();
         $builder->useAutowiring(false);
+        $builder->addDefinitions(__DIR__ . '/../../../config/settings.php');
         $builder->addDefinitions([
 
             // ── domain service ─
@@ -25,9 +26,9 @@ final class ContainerConfig {
 
             // ── adapters ─
             'toubilib.pdo' => function (ContainerInterface $c) {
-                $dsn = "{$_ENV['lib.driver']}:host={$_ENV['lib.host']};dbname={$_ENV['lib.database']}";
-                $user = $_ENV['lib.username'];
-                $password = $_ENV['lib.password'];
+                $dsn = "{$c->get('toubilib.db.driver')}:host={$c->get('toubilib.db.host')};dbname={$c->get('toubilib.db.database')}";
+                $user = $c->get('toubilib.db.username');
+                $password = $c->get('toubilib.db.password');
                 return new \PDO($dsn, $user, $password, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
             },
 
