@@ -15,7 +15,6 @@ class RendezVousValidator
     ) {
     }
 
-    // ── @throws ValidationException
     public function validate(string $praticienId, string $patientId): void
     {
         $errors = [];
