@@ -9,6 +9,7 @@ use toubilib\application\exceptions\RendezVousIntrouvableException;
 
 interface ServiceRendezVousInterface
 {
-  
+    public function details(string $idRendezVous): RendezVousDTO;
+
     public function annuler(string $idRendezVous): RendezVousDTO;
 }
