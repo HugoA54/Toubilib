@@ -29,7 +29,7 @@ function makeCreerAction(): CreerRendezVousAction {
     $patients->save(new Patient(ACTION_PATIENT_UUID, 'Durand', 'Alice', null, '0611111111'));
 
     return new CreerRendezVousAction(
-        new ServiceRendezVous(new InMemoryRendezVousRepository(), new RendezVousValidator($praticiens, $patients))
+        new ServiceRendezVous(new InMemoryRendezVousRepository(), new RendezVousValidator($praticiens, $patients), $praticiens, $patients)
     );
 }
 
@@ -40,7 +40,7 @@ function appelerCreer(mixed $body): \Psr\Http\Message\ResponseInterface {
 
 // ── Tests ─
 
-it("devrait répondre 201 avec les données reçues pour une création valide", function() {
+it("devrait répondre 201 avec le rendez-vous créé pour une création valide", function() {
     $rs = appelerCreer([
         'praticien_id' => ACTION_PRATICIEN_UUID,
         'patient_id' => ACTION_PATIENT_UUID,
@@ -49,14 +49,14 @@ it("devrait répondre 201 avec les données reçues pour une création valide", 
         'motif' => 'CI',
     ]);
 
+    $body = json_decode((string) $rs->getBody(), true);
+
     expect($rs->getStatusCode())->toBe(201);
-    expect(json_decode((string) $rs->getBody(), true))->toBe([
-        'praticien_id' => ACTION_PRATICIEN_UUID,
-        'patient_id' => ACTION_PATIENT_UUID,
-        'date_heure' => '2030-01-15 10:00',
-        'duree' => 45,
-        'motif' => 'CI',
-    ]);
+    expect($body['praticien_id'])->toBe(ACTION_PRATICIEN_UUID)
+        ->and($body['patient_id'])->toBe(ACTION_PATIENT_UUID)
+        ->and($body['date_heure'])->toBe('2030-01-15 10:00')
+        ->and($body['duree'])->toBe(30)
+        ->and($body['motif'])->toBe('CI');
 });
 
 it("devrait lever HttpBadRequestException pour un praticien inexistant", function() {
