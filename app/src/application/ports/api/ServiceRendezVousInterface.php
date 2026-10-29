@@ -15,5 +15,5 @@ interface ServiceRendezVousInterface
 
     public function annuler(string $idRendezVous): RendezVousDTO;
 
-    public function creer(CreateRdvDTO $dto): CreateRdvDTO;
+    public function creer(CreateRdvDTO $dto): RendezVousDTO;
 }
