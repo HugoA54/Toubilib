@@ -48,7 +48,7 @@ class ServiceRendezVous implements ServiceRendezVousInterface
 
     public function creer(CreateRdvDTO $dto): CreateRdvDTO
     {
-        $this->validator->validate($dto->praticienId, $dto->patientId);
+        $this->validator->validate($dto);
 
         return $dto;
     }
