@@ -149,7 +149,7 @@ it("ne devrait pas modifier le rendez-vous en consultant ses détails", function
 
 it("devrait retourner le DTO reçu pour une création de rendez-vous valide", function() {
     $service = makeService(makeRepository());
-    $dto = new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 45, 'Consultation');
+    $dto = new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 45, 'CI');
 
     expect($service->creer($dto))->toBe($dto);
 });
