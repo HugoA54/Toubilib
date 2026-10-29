@@ -7,6 +7,8 @@ use toubilib\domain\exceptions\RendezVousException;
 
 class Praticien
 {
+    public const MOTIFS = ['CI' => 30, 'C0' => 20, 'CS' => 15];
+
     public function __construct(
         private string $id,
         private string $titre,
@@ -20,7 +22,7 @@ class Praticien
         private DateTime $fin,
         private int $specialiteId,
         private string $structureId,
-        private array $motifs = []
+        private array $rendezVous = []
     ) {
 
     }
@@ -104,7 +106,7 @@ public function getDetails(): array
 
 public function verifierMotif(string $motif): bool
 {
-    return array_key_exists($motif, $this->motifs);
+    return array_key_exists($motif, self::MOTIFS);
 }
 
 public function calculerDuree(string $motif): int
@@ -112,7 +114,7 @@ public function calculerDuree(string $motif): int
     if (!$this->verifierMotif($motif)) {
         throw new RendezVousException("Le motif $motif n'est pas proposé par le praticien.");
     }
-    return $this->motifs[$motif];
+    return self::MOTIFS[$motif];
 }
 
 public function verifierDateHeure(DateTime $dateHeure): bool
@@ -121,6 +123,15 @@ public function verifierDateHeure(DateTime $dateHeure): bool
     return (int) $dateHeure->format('N') <= 5
         && $heure >= $this->debut->format('H:i:s')
         && $heure < $this->fin->format('H:i:s');
+}
+
+public function verifierDisponibilite(RendezVous $demande): void
+{
+    foreach ($this->rendezVous as $rendezVous) {
+        if ($rendezVous->getStatut() !== StatutRendezVous::ANNULE && $rendezVous->chevauche($demande)) {
+            throw new RendezVousException("Le praticien n'est pas disponible à la date et l'heure demandées.");
+        }
+    }
 }
 
 
