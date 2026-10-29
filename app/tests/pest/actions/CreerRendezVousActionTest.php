@@ -46,7 +46,7 @@ it("devrait répondre 201 avec les données reçues pour une création valide", 
         'patient_id' => ACTION_PATIENT_UUID,
         'date_heure' => '2030-01-15 10:00',
         'duree' => 45,
-        'motif' => 'Consultation',
+        'motif' => 'CI',
     ]);
 
     expect($rs->getStatusCode())->toBe(201);
@@ -55,7 +55,7 @@ it("devrait répondre 201 avec les données reçues pour une création valide", 
         'patient_id' => ACTION_PATIENT_UUID,
         'date_heure' => '2030-01-15 10:00',
         'duree' => 45,
-        'motif' => 'Consultation',
+        'motif' => 'CI',
     ]);
 });
 
