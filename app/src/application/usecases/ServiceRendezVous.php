@@ -59,7 +59,7 @@ class ServiceRendezVous implements ServiceRendezVousInterface
         $dateHeure = new DateTime($dto->dateHeure);
         $praticien = $this->praticienRepository->findByIdAvecRendezVous($dto->praticienId, $dateHeure);
         $patient = $this->patientRepository->findById($dto->patientId);
-        $rendezVous = RendezVous::creer($praticien, $patient, $dateHeure, $dto->motif ?? '');
+        $rendezVous = RendezVous::creer($praticien, $patient, $dateHeure, $dto->motif);
         $this->rendezVousRepository->ajouter($rendezVous);
 
         return RendezVousDTO::fromEntity($rendezVous);
