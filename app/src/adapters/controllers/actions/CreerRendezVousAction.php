@@ -5,7 +5,7 @@ namespace toubilib\adapters\controllers\actions;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpInternalServerErrorException;
 
 use toubilib\application\dto\CreateRdvDTO;
 use toubilib\application\exceptions\ValidationException;
@@ -21,29 +21,21 @@ class CreerRendezVousAction extends AbstractAction {
 
     public function __invoke(ServerRequestInterface $rq, ResponseInterface $rs, array $args): ResponseInterface {
         $body = $rq->getParsedBody();
-        if (!is_array($body)) {
-            throw new HttpBadRequestException($rq, "Le corps de la requête est invalide.");
-        }
 
-        foreach (['praticien_id', 'patient_id', 'date_heure'] as $champ) {
-            if (!isset($body[$champ]) || !is_string($body[$champ]) || trim($body[$champ]) === '') {
-                throw new HttpBadRequestException($rq, "Le champ $champ est obligatoire.");
-            }
+        try {
+            $dto = CreateRdvDTO::fromArray(is_array($body) ? $body : []);
+        } catch (ValidationException $e) {
+            return $this->json($rs, ['errors' => $e->getErrors()], 422);
         }
-
-        $dto = new CreateRdvDTO(
-            trim($body['praticien_id']),
-            trim($body['patient_id']),
-            trim($body['date_heure']),
-            (int) ($body['duree'] ?? 30),
-            isset($body['motif']) && is_string($body['motif']) ? $body['motif'] : null,
-        );
 
         try {
             $rendezVousDTO = $this->serviceRendezVous->creer($dto);
         } catch (ValidationException $e) {
-            throw new HttpBadRequestException($rq, implode(' ', $e->getErrors()));
+            return $this->json($rs, ['errors' => $e->getErrors()], 422);
+        } catch (\RuntimeException $e) {
+            throw new HttpInternalServerErrorException($rq, "Erreur lors de l'enregistrement du rendez-vous.");
         }
+
         return $this->json($rs, $rendezVousDTO->toArray(), 201);
     }
 }
