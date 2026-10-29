@@ -19,4 +19,8 @@ class InMemoryPraticienRepository implements PraticienRepositoryInterface {
     public function findById(string $id): ?Praticien {
         return $this->store[$id] ?? null;
     }
+
+    public function findByIdAvecRendezVous(string $id, \DateTime $jour): ?Praticien {
+        return $this->store[$id] ?? null;
+    }
 }
