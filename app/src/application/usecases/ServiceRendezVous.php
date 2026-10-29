@@ -3,13 +3,17 @@ declare(strict_types=1);
 
 namespace toubilib\application\usecases;
 
+use DateTime;
 use toubilib\application\dto\CreateRdvDTO;
 use toubilib\application\dto\RendezVousDTO;
 use toubilib\application\exceptions\AnnulationRendezVousException;
 use toubilib\application\exceptions\RendezVousIntrouvableException;
 use toubilib\application\ports\api\ServiceRendezVousInterface;
+use toubilib\application\ports\spi\PatientRepositoryInterface;
+use toubilib\application\ports\spi\PraticienRepositoryInterface;
 use toubilib\application\ports\spi\RendezVousRepositoryInterface;
 use toubilib\application\validators\RendezVousValidator;
+use toubilib\domain\entities\RendezVous;
 use toubilib\domain\exceptions\RendezVousException;
 
 class ServiceRendezVous implements ServiceRendezVousInterface
@@ -17,6 +21,8 @@ class ServiceRendezVous implements ServiceRendezVousInterface
     public function __construct(
         private RendezVousRepositoryInterface $rendezVousRepository,
         private RendezVousValidator $validator,
+        private PraticienRepositoryInterface $praticienRepository,
+        private PatientRepositoryInterface $patientRepository,
     ) {
     }
 
@@ -46,10 +52,16 @@ class ServiceRendezVous implements ServiceRendezVousInterface
         return RendezVousDTO::fromEntity($rendezVous);
     }
 
-    public function creer(CreateRdvDTO $dto): CreateRdvDTO
+    public function creer(CreateRdvDTO $dto): RendezVousDTO
     {
         $this->validator->validate($dto);
 
-        return $dto;
+        $dateHeure = new DateTime($dto->dateHeure);
+        $praticien = $this->praticienRepository->findByIdAvecRendezVous($dto->praticienId, $dateHeure);
+        $patient = $this->patientRepository->findById($dto->patientId);
+        $rendezVous = RendezVous::creer($praticien, $patient, $dateHeure, $dto->motif ?? '');
+        $this->rendezVousRepository->ajouter($rendezVous);
+
+        return RendezVousDTO::fromEntity($rendezVous);
     }
 }

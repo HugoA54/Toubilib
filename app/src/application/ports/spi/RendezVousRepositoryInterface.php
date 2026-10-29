@@ -10,4 +10,6 @@ interface RendezVousRepositoryInterface
     public function findById(string $id): ?RendezVous;
 
     public function save(RendezVous $rendezVous): void;
+
+    public function ajouter(RendezVous $rendezVous): void;
 }
