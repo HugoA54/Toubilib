@@ -38,7 +38,7 @@ class RendezVous
             throw new RendezVousException("La date et l'heure demandées ne sont pas possibles pour le praticien.");
         }
 
-        return new self(
+        $rendezVous = new self(
             Uuid::uuid4()->toString(),
             $patient->getId(),
             $praticien->getId(),
@@ -47,6 +47,15 @@ class RendezVous
             $praticien->calculerDuree($motif),
             $motif,
         );
+        $praticien->verifierDisponibilite($rendezVous);
+
+        return $rendezVous;
+    }
+
+    public function chevauche(RendezVous $rendezVous): bool
+    {
+        return $this->DateTimeHeure < $rendezVous->getDateTimeHeureFin()
+            && $rendezVous->getDateTimeHeure() < $this->getDateTimeHeureFin();
     }
 
 
