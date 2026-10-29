@@ -150,7 +150,7 @@ it("ne devrait pas modifier le rendez-vous en consultant ses détails", function
 it("devrait retourner le DTO du rendez-vous créé", function() {
     $service = makeService(makeRepository());
 
-    $rendezVousDTO = $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 45, 'CI'));
+    $rendezVousDTO = $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 'CI'));
 
     expect($rendezVousDTO->praticienId)->toBe(RDV_PRATICIEN_UUID)
         ->and($rendezVousDTO->patientId)->toBe(RDV_PATIENT_UUID)
@@ -165,7 +165,7 @@ it("devrait enregistrer le rendez-vous créé dans le repository", function() {
     $repository = makeRepository();
     $service = makeService($repository);
 
-    $rendezVousDTO = $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 45, 'CI'));
+    $rendezVousDTO = $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 'CI'));
 
     expect($repository->findById($rendezVousDTO->id))->not->toBeNull();
 });
@@ -173,11 +173,11 @@ it("devrait enregistrer le rendez-vous créé dans le repository", function() {
 it("devrait refuser la création d'un rendez-vous pour un praticien inexistant", function() {
     $service = makeService(makeRepository());
 
-    $service->creer(new CreateRdvDTO(RDV_INCONNU_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00'));
+    $service->creer(new CreateRdvDTO(RDV_INCONNU_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 'CI'));
 })->throws(ValidationException::class);
 
 it("devrait refuser la création d'un rendez-vous pour un patient inexistant", function() {
     $service = makeService(makeRepository());
 
-    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_INCONNU_UUID, '2030-01-15 10:00'));
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_INCONNU_UUID, '2030-01-15 10:00', 'CI'));
 })->throws(ValidationException::class);

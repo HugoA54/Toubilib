@@ -36,9 +36,9 @@ function makeValidator(): RendezVousValidator {
     return new RendezVousValidator($praticiens, $patients);
 }
 
-function erreursValidation(string $praticienId, string $patientId, string $dateHeure = '2030-01-14 14:00', ?string $motif = 'CI'): array {
+function erreursValidation(string $praticienId, string $patientId, string $dateHeure = '2030-01-14 14:00', string $motif = 'CI'): array {
     try {
-        makeValidator()->validate(new CreateRdvDTO($praticienId, $patientId, $dateHeure, 30, $motif));
+        makeValidator()->validate(new CreateRdvDTO($praticienId, $patientId, $dateHeure, $motif));
     } catch (ValidationException $e) {
         return $e->getErrors();
     }
@@ -69,7 +69,7 @@ it("devrait signaler le praticien et le patient inexistants ensemble", function(
 });
 
 it("devrait lancer une ValidationException avec le message Validation failed", function() {
-    makeValidator()->validate(new CreateRdvDTO(VALIDATOR_INCONNU_UUID, VALIDATOR_PATIENT_UUID, '2030-01-14 14:00', 30, 'CI'));
+    makeValidator()->validate(new CreateRdvDTO(VALIDATOR_INCONNU_UUID, VALIDATOR_PATIENT_UUID, '2030-01-14 14:00', 'CI'));
 })->throws(ValidationException::class, 'Validation failed');
 
 it("devrait refuser un motif non proposé par le praticien", function() {
