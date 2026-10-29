@@ -36,7 +36,7 @@ class RendezVousValidator
         }
 
         try {
-            RendezVous::creer($praticien, $patient, $dateHeure, $dto->motif ?? '');
+            RendezVous::creer($praticien, $patient, $dateHeure, $dto->motif);
         } catch (RendezVousException $e) {
             throw new ValidationException(['rendezVous' => $e->getMessage()]);
         }
