@@ -5,6 +5,7 @@ namespace toubilib\domain\entities;
 
 use DateInterval;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 use toubilib\domain\exceptions\RendezVousException;
 
 
@@ -26,6 +27,35 @@ class RendezVous
             throw new RendezVousException("La durée d'un rendez-vous doit être strictement positive.");
         }
         $this->statut = $statut;
+    }
+
+    public static function creer(Praticien $praticien, Patient $patient, DateTime $dateHeure, string $motif): self
+    {
+        if (!$praticien->verifierMotif($motif)) {
+            throw new RendezVousException("Le motif $motif n'est pas proposé par le praticien.");
+        }
+        if (!$praticien->verifierDateHeure($dateHeure)) {
+            throw new RendezVousException("La date et l'heure demandées ne sont pas possibles pour le praticien.");
+        }
+
+        $rendezVous = new self(
+            Uuid::uuid4()->toString(),
+            $patient->getId(),
+            $praticien->getId(),
+            $praticien->getStructureId(),
+            $dateHeure,
+            $praticien->calculerDuree($motif),
+            $motif,
+        );
+        $praticien->verifierDisponibilite($rendezVous);
+
+        return $rendezVous;
+    }
+
+    public function chevauche(RendezVous $rendezVous): bool
+    {
+        return $this->DateTimeHeure < $rendezVous->getDateTimeHeureFin()
+            && $rendezVous->getDateTimeHeure() < $this->getDateTimeHeureFin();
     }
 
 

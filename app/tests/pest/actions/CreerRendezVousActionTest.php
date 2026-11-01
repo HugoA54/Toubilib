@@ -1,6 +1,5 @@
 <?php
 
-use Slim\Exception\HttpBadRequestException;
 use Slim\Psr7\Factory\RequestFactory;
 use Slim\Psr7\Factory\ResponseFactory;
 use tests\pest\fakes\InMemoryPatientRepository;
@@ -29,7 +28,7 @@ function makeCreerAction(): CreerRendezVousAction {
     $patients->save(new Patient(ACTION_PATIENT_UUID, 'Durand', 'Alice', null, '0611111111'));
 
     return new CreerRendezVousAction(
-        new ServiceRendezVous(new InMemoryRendezVousRepository(), new RendezVousValidator($praticiens, $patients))
+        new ServiceRendezVous(new InMemoryRendezVousRepository(), new RendezVousValidator($praticiens, $patients), $praticiens, $patients)
     );
 }
 
@@ -40,37 +39,62 @@ function appelerCreer(mixed $body): \Psr\Http\Message\ResponseInterface {
 
 // ── Tests ─
 
-it("devrait répondre 201 avec les données reçues pour une création valide", function() {
+it("devrait répondre 201 avec le rendez-vous créé pour une création valide", function() {
     $rs = appelerCreer([
         'praticien_id' => ACTION_PRATICIEN_UUID,
         'patient_id' => ACTION_PATIENT_UUID,
         'date_heure' => '2030-01-15 10:00',
-        'duree' => 45,
-        'motif' => 'Consultation',
+        'motif' => 'CI',
     ]);
+
+    $body = json_decode((string) $rs->getBody(), true);
 
     expect($rs->getStatusCode())->toBe(201);
-    expect(json_decode((string) $rs->getBody(), true))->toBe([
-        'praticien_id' => ACTION_PRATICIEN_UUID,
-        'patient_id' => ACTION_PATIENT_UUID,
-        'date_heure' => '2030-01-15 10:00',
-        'duree' => 45,
-        'motif' => 'Consultation',
-    ]);
+    expect($body['praticien_id'])->toBe(ACTION_PRATICIEN_UUID)
+        ->and($body['patient_id'])->toBe(ACTION_PATIENT_UUID)
+        ->and($body['date_heure'])->toBe('2030-01-15 10:00')
+        ->and($body['duree'])->toBe(30)
+        ->and($body['motif'])->toBe('CI');
 });
 
-it("devrait lever HttpBadRequestException pour un praticien inexistant", function() {
-    appelerCreer(['praticien_id' => ACTION_INCONNU_UUID, 'patient_id' => ACTION_PATIENT_UUID, 'date_heure' => '2030-01-15 10:00']);
-})->throws(HttpBadRequestException::class);
+it("devrait répondre 422 pour un praticien inexistant", function() {
+    $rs = appelerCreer(['praticien_id' => ACTION_INCONNU_UUID, 'patient_id' => ACTION_PATIENT_UUID, 'date_heure' => '2030-01-15 10:00', 'motif' => 'CI']);
 
-it("devrait lever HttpBadRequestException pour un patient inexistant", function() {
-    appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'patient_id' => ACTION_INCONNU_UUID, 'date_heure' => '2030-01-15 10:00']);
-})->throws(HttpBadRequestException::class);
+    expect($rs->getStatusCode())->toBe(422);
+    expect(array_keys(json_decode((string) $rs->getBody(), true)['errors']))->toBe(['praticienId']);
+});
 
-it("devrait lever HttpBadRequestException si un champ obligatoire manque", function() {
-    appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'date_heure' => '2030-01-15 10:00']);
-})->throws(HttpBadRequestException::class, 'Le champ patient_id est obligatoire.');
+it("devrait répondre 422 pour un patient inexistant", function() {
+    $rs = appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'patient_id' => ACTION_INCONNU_UUID, 'date_heure' => '2030-01-15 10:00', 'motif' => 'CI']);
 
-it("devrait lever HttpBadRequestException si le corps est absent", function() {
-    appelerCreer(null);
-})->throws(HttpBadRequestException::class);
+    expect($rs->getStatusCode())->toBe(422);
+    expect(array_keys(json_decode((string) $rs->getBody(), true)['errors']))->toBe(['patientId']);
+});
+
+it("devrait répondre 422 pour un motif non proposé par le praticien", function() {
+    $rs = appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'patient_id' => ACTION_PATIENT_UUID, 'date_heure' => '2030-01-15 10:00', 'motif' => 'XX']);
+
+    expect($rs->getStatusCode())->toBe(422);
+    expect(json_decode((string) $rs->getBody(), true))->toBe(['errors' => ['rendezVous' => "Le motif XX n'est pas proposé par le praticien."]]);
+});
+
+it("devrait répondre 422 si un champ obligatoire manque", function() {
+    $rs = appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'date_heure' => '2030-01-15 10:00', 'motif' => 'CI']);
+
+    expect($rs->getStatusCode())->toBe(422);
+    expect(json_decode((string) $rs->getBody(), true))->toBe(['errors' => ['patient_id' => "Le champ patient_id est obligatoire et doit être une chaîne de caractères."]]);
+});
+
+it("devrait répondre 422 si la date n'est pas au bon format", function() {
+    $rs = appelerCreer(['praticien_id' => ACTION_PRATICIEN_UUID, 'patient_id' => ACTION_PATIENT_UUID, 'date_heure' => '15/01/2030 10:00', 'motif' => 'CI']);
+
+    expect($rs->getStatusCode())->toBe(422);
+    expect(array_keys(json_decode((string) $rs->getBody(), true)['errors']))->toBe(['date_heure']);
+});
+
+it("devrait répondre 422 si le corps est absent", function() {
+    $rs = appelerCreer(null);
+
+    expect($rs->getStatusCode())->toBe(422);
+    expect(array_keys(json_decode((string) $rs->getBody(), true)['errors']))->toBe(['praticien_id', 'patient_id', 'date_heure', 'motif']);
+});

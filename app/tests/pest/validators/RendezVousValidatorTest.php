@@ -1,9 +1,11 @@
 <?php
 
+use toubilib\application\dto\CreateRdvDTO;
 use toubilib\application\validators\RendezVousValidator;
 use toubilib\application\exceptions\ValidationException;
 use toubilib\domain\entities\Patient;
 use toubilib\domain\entities\Praticien;
+use toubilib\domain\entities\RendezVous;
 use tests\pest\fakes\InMemoryPatientRepository;
 use tests\pest\fakes\InMemoryPraticienRepository;
 
@@ -17,7 +19,8 @@ function makePraticienPourValidator(): Praticien {
         VALIDATOR_PRATICIEN_UUID, 'Dr.', 'Martin', 'Paul', '1 rue des Lilas',
         'Nancy', 'paul.martin@example.com', '0600000000',
         new DateTime('08:00'), new DateTime('18:00'), '1',
-        'c0000000-0000-4000-8000-000000000001'
+        'c0000000-0000-4000-8000-000000000001',
+        [new RendezVous('id', 'patient', VALIDATOR_PRATICIEN_UUID, 'structure', new DateTime('2030-01-14 10:00'), 30)]
     );
 }
 
@@ -33,9 +36,9 @@ function makeValidator(): RendezVousValidator {
     return new RendezVousValidator($praticiens, $patients);
 }
 
-function erreursValidation(string $praticienId, string $patientId): array {
+function erreursValidation(string $praticienId, string $patientId, string $dateHeure = '2030-01-14 14:00', string $motif = 'CI'): array {
     try {
-        makeValidator()->validate($praticienId, $patientId);
+        makeValidator()->validate(new CreateRdvDTO($praticienId, $patientId, $dateHeure, $motif));
     } catch (ValidationException $e) {
         return $e->getErrors();
     }
@@ -66,5 +69,23 @@ it("devrait signaler le praticien et le patient inexistants ensemble", function(
 });
 
 it("devrait lancer une ValidationException avec le message Validation failed", function() {
-    makeValidator()->validate(VALIDATOR_INCONNU_UUID, VALIDATOR_PATIENT_UUID);
+    makeValidator()->validate(new CreateRdvDTO(VALIDATOR_INCONNU_UUID, VALIDATOR_PATIENT_UUID, '2030-01-14 14:00', 'CI'));
 })->throws(ValidationException::class, 'Validation failed');
+
+it("devrait refuser un motif non proposé par le praticien", function() {
+    $errors = erreursValidation(VALIDATOR_PRATICIEN_UUID, VALIDATOR_PATIENT_UUID, '2030-01-14 14:00', 'Bilan cardiaque');
+
+    expect($errors)->toBe(['rendezVous' => "Le motif Bilan cardiaque n'est pas proposé par le praticien."]);
+});
+
+it("devrait refuser une date hors des horaires du praticien", function() {
+    $errors = erreursValidation(VALIDATOR_PRATICIEN_UUID, VALIDATOR_PATIENT_UUID, '2030-01-20 14:00');
+
+    expect($errors)->toBe(['rendezVous' => "La date et l'heure demandées ne sont pas possibles pour le praticien."]);
+});
+
+it("devrait refuser un rendez-vous qui chevauche un rendez-vous du praticien", function() {
+    $errors = erreursValidation(VALIDATOR_PRATICIEN_UUID, VALIDATOR_PATIENT_UUID, '2030-01-14 10:15');
+
+    expect($errors)->toBe(['rendezVous' => "Le praticien n'est pas disponible à la date et l'heure demandées."]);
+});

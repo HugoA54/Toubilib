@@ -12,6 +12,10 @@ class InMemoryRendezVousRepository implements RendezVousRepositoryInterface {
         $this->store[$rendezVous->getId()] = $rendezVous;
     }
 
+    public function ajouter(RendezVous $rendezVous): void {
+        $this->store[$rendezVous->getId()] = $rendezVous;
+    }
+
     public function findById(string $id): ?RendezVous {
         return $this->store[$id] ?? null;
     }

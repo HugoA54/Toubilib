@@ -15,11 +15,10 @@ use toubilib\adapters\persistance\PatientRepository;
 use toubilib\adapters\persistance\PraticienRepository;
 use toubilib\adapters\persistance\RendezVousRepository;
 
-// ── services métier et repositories ─
 return [
 
     ServiceRendezVousInterface::class => \DI\create(ServiceRendezVous::class)
-        ->constructor(\DI\get(RendezVousRepositoryInterface::class), \DI\get(RendezVousValidator::class)),
+        ->constructor(\DI\get(RendezVousRepositoryInterface::class), \DI\get(RendezVousValidator::class), \DI\get(PraticienRepositoryInterface::class), \DI\get(PatientRepositoryInterface::class)),
 
     'toubilib.pdo' => function (ContainerInterface $c) {
         $dsn = "{$c->get('toubilib.db.driver')}:host={$c->get('toubilib.db.host')};dbname={$c->get('toubilib.db.database')}";

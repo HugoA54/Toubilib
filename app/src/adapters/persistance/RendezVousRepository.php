@@ -51,5 +51,23 @@ public function save(RendezVous $rendezVous): void {
     }
 }
 
+public function ajouter(RendezVous $rendezVous): void {
+    try {
+        $stmt = $this->pdo->prepare('INSERT INTO rdv (id, patient_id, praticien_id, structure_id, date_heure, duree, motif, statut) VALUES (:id, :patient_id, :praticien_id, :structure_id, :date_heure, :duree, :motif, :statut)');
+        $stmt->execute([
+            'id' => $rendezVous->getId(),
+            'patient_id' => $rendezVous->getPatientId(),
+            'praticien_id' => $rendezVous->getPraticienId(),
+            'structure_id' => $rendezVous->getStructureId(),
+            'date_heure' => $rendezVous->getDateTimeHeure()->format('Y-m-d H:i:s'),
+            'duree' => $rendezVous->getDuree(),
+            'motif' => $rendezVous->getMotif(),
+            'statut' => $rendezVous->getStatut()->value,
+        ]);
+    } catch (\PDOException $e) {
+        throw new \RuntimeException("Erreur d'accès à la base de données.", previous: $e);
+    }
+}
+
 }
 ?>
