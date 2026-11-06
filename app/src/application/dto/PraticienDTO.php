@@ -45,19 +45,25 @@ final readonly class PraticienDTO
 
     public function toArray(): array
     {
+        
         return [
-            'id' => $this->id,
-            'titre' => $this->titre,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'adresse' => $this->adresse,
-            'ville' => $this->ville,
-            'email' => $this->email,
-            'tel' => $this->tel,
-            'debut' => $this->debut->format('Y-m-d H:i'),
-            'fin' => $this->fin->format('Y-m-d H:i'),
-            'specialite_id' => $this->specialiteId,
-            'structure_id' => $this->structureId,
-        ];
+            "type" => "ressource",
+            "praticien" => [
+                'id' => $this->id,
+                'titre' => $this->titre,
+                'nom' => $this->nom,
+                'prenom' => $this->prenom,
+                'adresse' => $this->adresse,
+                'ville' => $this->ville,
+                'email' => $this->email,
+                'tel' => $this->tel,
+                'debut' => $this->debut->format('Y-m-d H:i'),
+                'fin' => $this->fin->format('Y-m-d H:i'),
+                'specialite_id' => $this->specialiteId,
+                'structure_id' => $this->structureId,
+        ],
+            "links" => [
+                "self" => "/praticiens/" . $this->id
+            ]];
     }
 }
