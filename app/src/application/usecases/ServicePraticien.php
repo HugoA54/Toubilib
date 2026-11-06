@@ -32,9 +32,6 @@ class ServicePraticien implements ServicePraticienInterface
 
     }
 
-    public function toArray(){
-        
-    }
 
 
 }
