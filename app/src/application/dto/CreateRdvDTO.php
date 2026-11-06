@@ -54,10 +54,12 @@ final readonly class CreateRdvDTO
     public function toArray(): array
     {
         return [
+            "type" => "ressource",
+            "rendez_vous" => [
             'praticien_id' => $this->praticienId,
             'patient_id' => $this->patientId,
             'date_heure' => $this->dateHeure,
             'motif' => $this->motif,
-        ];
+        ]];
     }
 }
