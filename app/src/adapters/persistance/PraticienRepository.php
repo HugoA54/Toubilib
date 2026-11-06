@@ -6,6 +6,7 @@ namespace toubilib\adapters\persistance;
 use Override;
 use toubilib\application\ports\spi\PraticienRepositoryInterface;
 use toubilib\domain\entities\Praticien;
+use toubilib\application\dto\PraticienDTO;
 use toubilib\domain\entities\RendezVous;
 use toubilib\domain\entities\StatutRendezVous;
 
@@ -30,13 +31,13 @@ class PraticienRepository implements PraticienRepositoryInterface{
 
         }
 
-        public function findById(string $id): ?Praticien
+        public function findById(string $id): ?PraticienDTO
         {
             try {
-                $stmt = $this->pdo->prepare('SELECT id, titre, nom, prenom, adresse, ville, email, telephone, horaire_debut, horaire_fin, specialite_id, structure_id FROM praticien WHERE id = :id');
+                $stmt = $this->pdo->prepare('SELECT praticien.id as id, titre, praticien.nom as nom, prenom, adresse, ville, email, telephone, horaire_debut, horaire_fin, specialite_id, structure_id FROM praticien WHERE praticien.id = :id');
                 $stmt->execute(['id' => $id]);
             } catch (\PDOException $e) {
-                throw new \RuntimeException("Erreur d'accès à la base de données.", previous: $e);
+                throw new \RuntimeException("Erreur d'accès à la base de données." . $e->getMessage(), previous: $e);
             }
 
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -44,7 +45,7 @@ class PraticienRepository implements PraticienRepositoryInterface{
                 return null;
             }
 
-            return new Praticien(
+            return new PraticienDTO(
                 $row['id'],
                 $row['titre'],
                 $row['nom'],
@@ -60,7 +61,7 @@ class PraticienRepository implements PraticienRepositoryInterface{
             );
         }
 
-        public function findByIdAvecRendezVous(string $id, \DateTime $jour): ?Praticien
+        public function findByIdAvecRendezVous(string $id, \DateTime $jour): ?PraticienDTO
         {
             try {
                 $stmt = $this->pdo->prepare('SELECT id, titre, nom, prenom, adresse, ville, email, telephone, horaire_debut, horaire_fin, specialite_id, structure_id FROM praticien WHERE id = :id');
@@ -92,7 +93,7 @@ class PraticienRepository implements PraticienRepositoryInterface{
                 StatutRendezVous::from((int) $rdv['statut'])
             ), $rows);
 
-            return new Praticien(
+            return new PraticienDTO(
                 $row['id'],
                 $row['titre'],
                 $row['nom'],
