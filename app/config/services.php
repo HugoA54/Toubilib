@@ -17,6 +17,8 @@ use toubilib\adapters\persistance\RendezVousRepository;
 
 return [
 
+    \Psr\Http\Message\ResponseFactoryInterface::class => \DI\create(\Slim\Psr7\Factory\ResponseFactory::class),
+
     ServiceRendezVousInterface::class => \DI\create(ServiceRendezVous::class)
         ->constructor(\DI\get(RendezVousRepositoryInterface::class), \DI\get(RendezVousValidator::class), \DI\get(PraticienRepositoryInterface::class), \DI\get(PatientRepositoryInterface::class)),
 
