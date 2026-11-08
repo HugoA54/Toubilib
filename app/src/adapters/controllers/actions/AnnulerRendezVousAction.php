@@ -5,7 +5,7 @@ namespace toubilib\adapters\controllers\actions;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotFoundException;
 
 use toubilib\application\exceptions\AnnulationRendezVousException;
@@ -27,7 +27,7 @@ class AnnulerRendezVousAction extends AbstractAction {
         } catch (RendezVousIntrouvableException $e) {
             throw new HttpNotFoundException($rq, "Aucun rendez-vous avec l'id $id");
         } catch (AnnulationRendezVousException $e) {
-            throw new HttpBadRequestException($rq, $e->getMessage());
+            throw new HttpException($rq, $e->getMessage(), 409, $e);
         }
         return $this->json($rs, $rendezVousDTO->toArray());
     }
