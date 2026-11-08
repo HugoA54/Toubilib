@@ -4,14 +4,15 @@ declare(strict_types=1);
 namespace toubilib\application\ports\spi;
 
 use DateTime;
-use toubilib\application\dto\PraticienDTO;
+use toubilib\domain\entities\Praticien;
 
 interface PraticienRepositoryInterface
 {
+    /** @return Praticien[] */
     public function findByAll() : array;
 
-    public function findById(string $id) : ?PraticienDTO;
+    public function findById(string $id) : ?Praticien;
 
-    public function findByIdAvecRendezVous(string $id, DateTime $jour) : ?PraticienDTO;
+    public function findByIdAvecRendezVous(string $id, DateTime $jour) : ?Praticien;
 
 }
