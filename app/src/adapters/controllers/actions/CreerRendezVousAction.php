@@ -36,6 +36,6 @@ class CreerRendezVousAction extends AbstractAction {
             throw new HttpInternalServerErrorException($rq, "Erreur lors de l'enregistrement du rendez-vous.");
         }
 
-        return $this->json($rs, $rendezVousDTO->toArray(), 201);
+        return $this->json($rs->withHeader('Location', '/rdvs/' . $rendezVousDTO->id), $rendezVousDTO->toArray(), 201);
     }
 }
