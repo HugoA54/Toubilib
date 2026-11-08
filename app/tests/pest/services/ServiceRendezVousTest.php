@@ -10,6 +10,9 @@ use tests\pest\fakes\InMemoryPatientRepository;
 use tests\pest\fakes\InMemoryPraticienRepository;
 use toubilib\application\validators\RendezVousValidator;
 use toubilib\application\dto\CreateRdvDTO;
+use toubilib\application\dto\PeriodeDTO;
+use toubilib\application\exceptions\PraticienIntrouvableException;
+use toubilib\application\exceptions\TransitionRendezVousException;
 use toubilib\application\exceptions\ValidationException;
 use toubilib\domain\entities\Patient;
 use toubilib\domain\entities\Praticien;
@@ -66,7 +69,7 @@ it("devrait retourner le DTO du rendez-vous annulé", function() {
 
     $dto = $service->annuler(RDV_UUID);
 
-    expect($dto->toArray())->toMatchArray([
+    expect($dto->toArray()['rendez_vous'])->toMatchArray([
         'id' => RDV_UUID,
         'patient_id' => 'b0000000-0000-4000-8000-000000000001',
         'praticien_id' => 'a0000000-0000-4000-8000-000000000001',
@@ -118,7 +121,7 @@ it("devrait retourner les détails d'un rendez-vous", function() {
 
     $dto = $service->details(RDV_UUID);
 
-    expect($dto->toArray())->toMatchArray([
+    expect($dto->toArray()['rendez_vous'])->toMatchArray([
         'id' => RDV_UUID,
         'patient_id' => 'b0000000-0000-4000-8000-000000000001',
         'praticien_id' => 'a0000000-0000-4000-8000-000000000001',
@@ -181,3 +184,82 @@ it("devrait refuser la création d'un rendez-vous pour un patient inexistant", f
 
     $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_INCONNU_UUID, '2030-01-15 10:00', 'CI'));
 })->throws(ValidationException::class);
+
+it("devrait marquer honoré un rendez-vous commencé et l'enregistrer", function() {
+    $repository = makeRepository([makeRendezVousPourService('-1 day')]);
+
+    $dto = makeService($repository)->honorer(RDV_UUID);
+
+    expect($dto->statut)->toBe(StatutRendezVous::HONORE->value)
+        ->and($repository->findById(RDV_UUID)->getStatut())->toBe(StatutRendezVous::HONORE);
+});
+
+it("devrait marquer ignoré un rendez-vous commencé et l'enregistrer", function() {
+    $repository = makeRepository([makeRendezVousPourService('-1 day')]);
+
+    $dto = makeService($repository)->ignorer(RDV_UUID);
+
+    expect($dto->statut)->toBe(StatutRendezVous::NON_HONORE->value)
+        ->and($repository->findById(RDV_UUID)->getStatut())->toBe(StatutRendezVous::NON_HONORE);
+});
+
+it("devrait refuser d'honorer un rendez-vous qui n'a pas commencé", function() {
+    $repository = makeRepository([makeRendezVousPourService('+1 day')]);
+
+    expect(fn () => makeService($repository)->honorer(RDV_UUID))
+        ->toThrow(TransitionRendezVousException::class);
+    expect($repository->findById(RDV_UUID)->getStatut())->toBe(StatutRendezVous::PREVU);
+});
+
+it("devrait refuser d'ignorer un rendez-vous inexistant", function() {
+    expect(fn () => makeService(makeRepository())->ignorer(RDV_INCONNU_UUID))
+        ->toThrow(RendezVousIntrouvableException::class);
+});
+
+it("devrait lister les créneaux occupés de la période, annulés et hors période exclus", function() {
+    $service = makeService(makeRepository());
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 'CI'));
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-16 10:00', 'CS'));
+    $annule = $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 14:00', 'CI'));
+    $service->annuler($annule->id);
+
+    $creneaux = $service->creneaux(RDV_PRATICIEN_UUID, new PeriodeDTO('2030-01-15', '2030-01-15'));
+
+    expect($creneaux)->toHaveCount(1)
+        ->and($creneaux[0]->toArray())->toBe(['debut' => '2030-01-15 10:00', 'fin' => '2030-01-15 10:30', 'duree' => 30]);
+});
+
+it("devrait inclure le dernier jour de la période", function() {
+    $service = makeService(makeRepository());
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-16 17:30', 'CI'));
+
+    expect($service->creneaux(RDV_PRATICIEN_UUID, new PeriodeDTO('2030-01-15', '2030-01-16')))->toHaveCount(1);
+});
+
+it("devrait retourner l'agenda avec le patient et le motif, trié par date", function() {
+    $service = makeService(makeRepository());
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 14:00', 'CS'));
+    $service->creer(new CreateRdvDTO(RDV_PRATICIEN_UUID, RDV_PATIENT_UUID, '2030-01-15 10:00', 'CI'));
+
+    $agenda = $service->agenda(RDV_PRATICIEN_UUID, new PeriodeDTO('2030-01-15', '2030-01-15'));
+
+    expect($agenda)->toHaveCount(2)
+        ->and($agenda[0]->debut)->toBe('2030-01-15 10:00')
+        ->and($agenda[0]->motif)->toBe('CI')
+        ->and($agenda[0]->toArray()['patient'])->toBe(['id' => RDV_PATIENT_UUID, 'nom' => 'Durand', 'prenom' => 'Alice']);
+});
+
+it("devrait refuser l'agenda d'un praticien inexistant", function() {
+    expect(fn () => makeService(makeRepository())->agenda(RDV_INCONNU_UUID, new PeriodeDTO('2030-01-15', '2030-01-15')))
+        ->toThrow(PraticienIntrouvableException::class);
+});
+
+it("ne devrait proposer les liens de transition que pour un rendez-vous prévu", function() {
+    $service = makeService(makeRepository([makeRendezVousPourService('+1 day')]));
+
+    expect(array_keys($service->details(RDV_UUID)->toArray()['links']))->toBe(['self', 'praticien', 'annuler', 'honorer', 'ignorer']);
+
+    $service->annuler(RDV_UUID);
+
+    expect(array_keys($service->details(RDV_UUID)->toArray()['links']))->toBe(['self', 'praticien']);
+});
