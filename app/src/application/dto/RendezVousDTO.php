@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace toubilib\application\dto;
 
 use toubilib\domain\entities\RendezVous;
+use toubilib\domain\entities\StatutRendezVous;
 
 final readonly class RendezVousDTO
 {
@@ -39,6 +40,16 @@ final readonly class RendezVousDTO
 
     public function toArray(): array
     {
+        $links = [
+            'self' => ["href" => "/rdvs/" . $this->id],
+            'praticien' => ["href" => "/praticiens/" . $this->praticienId],
+        ];
+        if ($this->statut === StatutRendezVous::PREVU->value) {
+            $links['annuler'] = ["href" => "/rdvs/" . $this->id . "/annuler"];
+            $links['honorer'] = ["href" => "/rdvs/" . $this->id . "/honorer"];
+            $links['ignorer'] = ["href" => "/rdvs/" . $this->id . "/ignorer"];
+        }
+
         return [
             'type' => "ressource",
             'rendez_vous' => array(
@@ -53,16 +64,7 @@ final readonly class RendezVousDTO
                 'statut' => $this->statut,
                 'statut_libelle' => $this->statutLibelle
             ),
-            'links' => array(
-                'self' => ["href" => "/rendezvous/" . $this->id],
-                'praticien' => ["href" => "/praticiens/" . $this->praticienId],
-                'annuler' => ["href" => "/rendezvous/" . $this->id . "/annuler"],
-                'honorer' => ["href" => "/rendezvous/" . $this->id . "/honorer"],
-                'ignorer' => ["href" => "/rendezvous/" . $this->id . "/ignorer"],
-                
-
-            )
-
+            'links' => $links,
         ];
     }
 }
