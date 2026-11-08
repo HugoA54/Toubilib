@@ -33,7 +33,7 @@ function makeCreerAction(): CreerRendezVousAction {
 }
 
 function appelerCreer(mixed $body): \Psr\Http\Message\ResponseInterface {
-    $rq = (new RequestFactory())->createRequest('POST', '/rendezvous')->withParsedBody($body);
+    $rq = (new RequestFactory())->createRequest('POST', '/rdvs')->withParsedBody($body);
     return makeCreerAction()($rq, (new ResponseFactory())->createResponse(), []);
 }
 
@@ -50,11 +50,14 @@ it("devrait répondre 201 avec le rendez-vous créé pour une création valide",
     $body = json_decode((string) $rs->getBody(), true);
 
     expect($rs->getStatusCode())->toBe(201);
-    expect($body['praticien_id'])->toBe(ACTION_PRATICIEN_UUID)
-        ->and($body['patient_id'])->toBe(ACTION_PATIENT_UUID)
-        ->and($body['date_heure'])->toBe('2030-01-15 10:00')
-        ->and($body['duree'])->toBe(30)
-        ->and($body['motif'])->toBe('CI');
+    $rendezVous = $body['rendez_vous'];
+
+    expect($rendezVous['praticien_id'])->toBe(ACTION_PRATICIEN_UUID)
+        ->and($rendezVous['patient_id'])->toBe(ACTION_PATIENT_UUID)
+        ->and($rendezVous['date_heure'])->toBe('2030-01-15 10:00')
+        ->and($rendezVous['duree'])->toBe(30)
+        ->and($rendezVous['motif'])->toBe('CI')
+        ->and($rs->getHeaderLine('Location'))->toBe('/rdvs/' . $rendezVous['id']);
 });
 
 it("devrait répondre 422 pour un praticien inexistant", function() {
