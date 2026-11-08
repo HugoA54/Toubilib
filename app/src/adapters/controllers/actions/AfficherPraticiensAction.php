@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace toubilib\adapters\controllers\actions;
 
-use toubilib\application\ports\api\ServicePraticienInterface;
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use toubilib\application\dto\PraticienDTO;
+use toubilib\application\ports\api\ServicePraticienInterface;
 
 class AfficherPraticiensAction extends AbstractAction
 {
@@ -19,31 +19,18 @@ class AfficherPraticiensAction extends AbstractAction
 
     public function __invoke(ServerRequestInterface $rq, ResponseInterface $rs, array $args): ResponseInterface
     {
-        $praticiens = $this->servicePraticien->getAllPraticiens();
-
-        $data = [];
-        foreach ($praticiens as $praticien) {
-            $item = $praticien;
-
-            $data[] = [ 
-                'id' => $item['id'],
-                'nom' => $item['nom'],
-                'prenom' => $item['prenom'],
-                '_links' => [
-                    'self' => ['href' => '/praticiens/' . $item['id']],
-                ],
-            ];
-        }
-
-        $body = json_encode(
-            $data,
-            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        $praticiens = array_map(
+            fn (PraticienDTO $praticien) => $praticien->toResumeArray(),
+            $this->servicePraticien->getAllPraticiens()
         );
 
-        $rs->getBody()->write($body);
-
-        return $rs
-            ->withStatus(200)
-            ->withHeader('Content-Type', 'application/json; charset=utf-8');
+        return $this->json($rs, [
+            'type' => 'collection',
+            'count' => count($praticiens),
+            'praticiens' => $praticiens,
+            'links' => [
+                'self' => ['href' => '/praticiens'],
+            ],
+        ]);
     }
 }
