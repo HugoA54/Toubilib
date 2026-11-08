@@ -22,10 +22,16 @@ class Praticien
         private DateTime $fin,
         private int $specialiteId,
         private string $structureId,
-        private array $rendezVous = []
+        private array $rendezVous = [],
+        private ?string $specialite = null
     ) {
 
     }
+
+public function getSpecialite(): ?string
+{
+    return $this->specialite;
+}
 
 public function getId(): string
 {
