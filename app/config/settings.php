@@ -10,4 +10,8 @@ return [
     'toubilib.db.username' => $_ENV['lib.username'],
     'toubilib.db.password' => $_ENV['lib.password'],
 
+    'cors.origine'  => '*',
+    'cors.methodes' => 'GET, POST, OPTIONS',
+    'cors.headers'  => 'Content-Type, Accept, Authorization',
+
 ];
